@@ -21,11 +21,6 @@ namespace LabBenchmarks.MessagePack
     [Config(typeof(Config))]
     public class Lab
     {
-        public Lab()
-        {
-            LabHelper.Init();
-        }
-
         private class Config : ManualConfig
         {
             public Config()
@@ -38,13 +33,14 @@ namespace LabBenchmarks.MessagePack
                 string methodName = benchmarkCase.Descriptor.WorkloadMethod.Name;
                 if (benchmarkCase.Descriptor.Categories.Contains("Serialize"))
                 {
-                    var N = benchmarkCase.Parameters.GetArgument("N").Value as N;
+                    int Count = int.Parse(benchmarkCase.Parameters.Items.First(a => a.Name == "Count").Value.ToString());
+                    var N = new N(Count);
                     var arr = N.Original;
                     if (methodName.StartsWith("Proto"))
                     {
                         using(var ms = new MemoryStream())
                         {
-                            Serializer.Serialize<LabModel[]>(ms, arr);
+                            Serializer.Serialize<List<LabModel>>(ms, arr);
                             return ms.ToArray();
                         }
                     }
@@ -76,49 +72,19 @@ namespace LabBenchmarks.MessagePack
             }
         }
 
-        public IEnumerable<N> GetModel()
-        {
-            foreach (var i in LabHelper.N)
-            {
-                yield return new N(i, ModelType.Original);
-            }
-        }
+        [Params(1, 10, 100, 10000)]
+        public int Count { get; set; }
 
-        public IEnumerable<N> GetMsgpack()
-        {
-            foreach (var i in LabHelper.N)
-            {
-                yield return new N(i, ModelType.Msgpack);
-            }
-        }
+        private N N;
 
-        public IEnumerable<N> GetLZ4Msgpack()
+        [GlobalSetup]
+        public void Setup()
         {
-            foreach (var i in LabHelper.N)
-            {
-                yield return new N(i, ModelType.LZ4Msgpack);
-            }
-        }
-
-        public IEnumerable<N> GetJson()
-        {
-            foreach (var i in LabHelper.N)
-            {
-                yield return new N(i, ModelType.Json);
-            }
-        }
-
-        public IEnumerable<N> GetProto()
-        {
-            foreach (var i in LabHelper.N)
-            {
-                yield return new N(i, ModelType.ProtoBuf);
-            }
+            N = new N(Count);
         }
 
         [Benchmark(Baseline = true), BenchmarkCategory("Serialize")]
-        [ArgumentsSource(nameof(GetModel))]
-        public List<byte[]> MspackSerialize(N N)
+        public List<byte[]> MspackSerialize()
         {
             List<byte[]> ret = new List<byte[]>();
             foreach (var item in N.Original)
@@ -129,8 +95,7 @@ namespace LabBenchmarks.MessagePack
         }
 
         [Benchmark(Baseline = true), BenchmarkCategory("Deserialize")]
-        [ArgumentsSource(nameof(GetMsgpack))]
-        public List<LabModel> MspackDeserialize(N N)
+        public List<LabModel> MspackDeserialize()
         {
             List<LabModel> ret = new List<LabModel>();
             foreach (var item in N.Msgpack)
@@ -141,8 +106,7 @@ namespace LabBenchmarks.MessagePack
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
-        [ArgumentsSource(nameof(GetModel))]
-        public List<byte[]> LZ4MspackSerialize(N N)
+        public List<byte[]> LZ4MspackSerialize()
         {
             List<byte[]> ret = new List<byte[]>();
             foreach (var item in N.Original)
@@ -153,8 +117,7 @@ namespace LabBenchmarks.MessagePack
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
-        [ArgumentsSource(nameof(GetLZ4Msgpack))]
-        public List<LabModel> LZ4MspackDeserialize(N N)
+        public List<LabModel> LZ4MspackDeserialize()
         {
             List<LabModel> ret = new List<LabModel>();
             foreach (var item in N.LZ4Msgpack)
@@ -165,8 +128,7 @@ namespace LabBenchmarks.MessagePack
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
-        [ArgumentsSource(nameof(GetModel))]
-        public List<byte[]> ProtoSerialize(N N)
+        public List<byte[]> ProtoSerialize()
         {
             List<byte[]> ret = new List<byte[]>();
             foreach (var item in N.Original)
@@ -181,8 +143,7 @@ namespace LabBenchmarks.MessagePack
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
-        [ArgumentsSource(nameof(GetProto))]
-        public List<LabModel> ProtoDeserialize(N N)
+        public List<LabModel> ProtoDeserialize()
         {
             List<LabModel> ret = new List<LabModel>();
             foreach (var item in N.ProtoBuf)
@@ -196,8 +157,7 @@ namespace LabBenchmarks.MessagePack
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
-        [ArgumentsSource(nameof(GetModel))]
-        public List<string> JsonSerialize(N N)
+        public List<string> JsonSerialize()
         {
             List<string> ret = new List<string>();
             foreach (var item in N.Original)
@@ -208,8 +168,7 @@ namespace LabBenchmarks.MessagePack
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
-        [ArgumentsSource(nameof(GetJson))]
-        public List<LabModel> JsonDeserialize(N N)
+        public List<LabModel> JsonDeserialize()
         {
             List<LabModel> ret = new List<LabModel>();
             foreach (var item in N.Json)

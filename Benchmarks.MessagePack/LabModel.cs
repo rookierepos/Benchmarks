@@ -29,86 +29,40 @@ namespace LabBenchmarks.MessagePack
         public bool Male { get; set; }
     }
 
-    public static class LabHelper
-    {
-
-        // public static int[] N = { 1, 10 };
-        public static int[] N = { 1, 10, 100, 10000 };
-        public static List<LabModel> Original;
-        public static List<byte[]> Msgpack;
-        public static List<byte[]> LZ4Msgpack;
-        public static List<byte[]> ProtoBuf;
-        public static List<string> Json;
-
-        public static void Init()
-        {
-            int max = N.Max();
-            if (Original == null)
-            {
-                Original = new List<LabModel>();
-                Msgpack = new List<byte[]>();
-                LZ4Msgpack = new List<byte[]>();
-                ProtoBuf = new List<byte[]>();
-                Json = new List<string>();
-                Enumerable.Range(1, max).ToList().ForEach((i) =>
-                {
-                    var model = new LabModel { Id = i, Name = $"My name is {i}. 我的名字是 {i}。", CreatedTime = DateTime.Now, Male = i % 2 == 0 ? true : false };
-                    Original.Add(model);
-                    Msgpack.Add(MessagePackSerializer.Serialize(model));
-                    LZ4Msgpack.Add(LZ4MessagePackSerializer.Serialize(model));
-                    using(var ms = new MemoryStream())
-                    {
-                        Serializer.Serialize<LabModel>(ms, model);
-                        ProtoBuf.Add(ms.ToArray());
-                    }
-                    Json.Add(JsonConvert.SerializeObject(model));
-                });
-            }
-        }
-    }
-
-    public enum ModelType
-    {
-        Original,
-        Msgpack,
-        LZ4Msgpack,
-        ProtoBuf,
-        Json
-    }
-
     public class N
     {
-        public N(int i, ModelType modelType)
+        public N(int i)
         {
-            this.Count = i;
-            switch (modelType)
+            Original = new List<LabModel>();
+            Msgpack = new List<byte[]>();
+            LZ4Msgpack = new List<byte[]>();
+            ProtoBuf = new List<byte[]>();
+            Json = new List<string>();
+            Enumerable.Range(1, i).ToList().ForEach((x) =>
             {
-                case ModelType.Original:
-                    this.Original = LabHelper.Original.Take(i).ToArray();
-                    break;
-                case ModelType.Msgpack:
-                    this.Msgpack = LabHelper.Msgpack.Take(i).ToArray();
-                    break;
-                case ModelType.LZ4Msgpack:
-                    this.LZ4Msgpack = LabHelper.LZ4Msgpack.Take(i).ToArray();
-                    break;
-                case ModelType.ProtoBuf:
-                    this.ProtoBuf = LabHelper.ProtoBuf.Take(i).ToArray();
-                    break;
-                default:
-                    this.Json = LabHelper.Json.Take(i).ToArray();
-                    break;
-            }
+                var model = new LabModel
+                {
+                Id = x,
+                Name = $"My name is {x}. 我的名字是 {x}。",
+                CreatedTime = DateTime.Now,
+                Male = x % 2 == 0 ? true : false
+                };
+                Original.Add(model);
+                Msgpack.Add(MessagePackSerializer.Serialize(model));
+                LZ4Msgpack.Add(LZ4MessagePackSerializer.Serialize(model));
+                using(var ms = new MemoryStream())
+                {
+                    Serializer.Serialize<LabModel>(ms, model);
+                    ProtoBuf.Add(ms.ToArray());
+                }
+                Json.Add(JsonConvert.SerializeObject(model));
+            });
         }
 
-        private int Count;
-
-        public LabModel[] Original;
-        public byte[][] Msgpack;
-        public byte[][] LZ4Msgpack;
-        public byte[][] ProtoBuf;
-        public string[] Json;
-
-        public override string ToString() => Count.ToString();
+        public List<LabModel> Original;
+        public List<byte[]> Msgpack;
+        public List<byte[]> LZ4Msgpack;
+        public List<byte[]> ProtoBuf;
+        public List<string> Json;
     }
 }
