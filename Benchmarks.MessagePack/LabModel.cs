@@ -59,6 +59,22 @@ namespace LabBenchmarks.MessagePack
             });
         }
 
+        public N(int i, bool isOriginal)
+        {
+            Original = new List<LabModel>();
+            Enumerable.Range(1, i).ToList().ForEach((x) =>
+            {
+                var model = new LabModel
+                {
+                Id = x,
+                Name = $"My name is {x}. 我的名字是 {x}。",
+                CreatedTime = DateTime.Now,
+                Male = x % 2 == 0 ? true : false
+                };
+                Original.Add(model);
+            });
+        }
+
         public List<LabModel> Original;
         public List<byte[]> Msgpack;
         public List<byte[]> LZ4Msgpack;

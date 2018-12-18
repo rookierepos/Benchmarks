@@ -34,7 +34,7 @@ namespace LabBenchmarks.MessagePack
                 if (benchmarkCase.Descriptor.Categories.Contains("Serialize"))
                 {
                     int Count = int.Parse(benchmarkCase.Parameters.Items.First(a => a.Name == "Count").Value.ToString());
-                    var N = new N(Count);
+                    var N = new N(Count, true);
                     var arr = N.Original;
                     if (methodName.StartsWith("Proto"))
                     {
@@ -75,7 +75,7 @@ namespace LabBenchmarks.MessagePack
         [Params(1, 10, 100, 10000)]
         public int Count { get; set; }
 
-        private N N;
+        public N N;
 
         [GlobalSetup]
         public void Setup()
