@@ -1,13 +1,13 @@
 ﻿using System;
 using BenchmarkDotNet.Running;
 
-namespace Benchmarks.Interface
+namespace Benchmarks.Infrastructure
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<LabIEnumerable>();
+            var summary = BenchmarkRunner.Run<Lab>();
             Console.ReadKey();
         }
     }
