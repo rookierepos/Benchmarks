@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks.MessagePack", "Benchmarks.MessagePack\Benchmarks.MessagePack.csproj", "{566DAE64-3327-4A82-A1B3-B366EEE836B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks.Interface", "Benchmarks.Interface\Benchmarks.Interface.csproj", "{CB398A94-A1F9-4E5B-AD32-CFF505D02762}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks.Infrastructure", "Benchmarks.Infrastructure\Benchmarks.Infrastructure.csproj", "{CB398A94-A1F9-4E5B-AD32-CFF505D02762}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
