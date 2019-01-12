@@ -42,7 +42,7 @@ Job=Core  Runtime=Core
 |   List |  1000 | 2,644.76 ns |  52.3925 ns |  80.0088 ns |  0.33 |    0.01 |    1 |           - |           - |           - |                   - |
 ```
 
-## Yield vs NoYield
+## Yield vs NoYield (total:N loop:N/2)
 
 ```
 |  Method | Count |         Mean |     Error |    StdDev | Ratio | Rank | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
