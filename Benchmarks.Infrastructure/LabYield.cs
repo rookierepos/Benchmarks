@@ -6,6 +6,7 @@ using BenchmarkDotNet.Jobs;
 
 namespace Benchmarks.Infrastructure
 {
+    // [SimpleJob(RunStrategy.ColdStart, targetCount : 50)]
     [CoreJob]
     [RankColumn, MemoryDiagnoser]
     public class LabYield
