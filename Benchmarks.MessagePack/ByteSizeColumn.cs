@@ -7,9 +7,9 @@ namespace LabBenchmarks.MessagePack
 {
     public class ByteSizeColumn : IColumn
     {
-        private readonly Func<BenchmarkCase, string> _getResult;
+        private readonly Func<Summary, BenchmarkCase, string> _getResult;
 
-        public ByteSizeColumn(Func<BenchmarkCase, string> getResult) => _getResult = getResult;
+        public ByteSizeColumn(Func<Summary, BenchmarkCase, string> getResult) => _getResult = getResult;
 
         public string Id => nameof(ByteSizeColumn);
 
@@ -27,7 +27,7 @@ namespace LabBenchmarks.MessagePack
 
         public string Legend => $"Custom '{ColumnName}' tag column";
 
-        public string GetValue(Summary summary, BenchmarkCase benchmarkCase) => _getResult(benchmarkCase);
+        public string GetValue(Summary summary, BenchmarkCase benchmarkCase) => _getResult(summary, benchmarkCase);
 
         public string GetValue(Summary summary, BenchmarkCase benchmarkCase, ISummaryStyle style) => GetValue(summary, benchmarkCase);
 

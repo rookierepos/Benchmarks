@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
 
 namespace Benchmarks.Infrastructure
 {
+    // [SimpleJob(RunStrategy.ColdStart, targetCount : 50)]
     [CoreJob]
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     [RankColumn, MemoryDiagnoser]
