@@ -9,76 +9,123 @@ using ProtoBuf;
 namespace LabBenchmarks.MessagePack
 {
     [ProtoContract]
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject /*(keyAsPropertyName: true)*/ ]
     public class LabModel
     {
         [ProtoMember(1)]
-        // [Key(0)]
+        [Key(0)]
         public int Id { get; set; }
 
         [ProtoMember(2)]
-        // [Key(1)]
+        [Key(1)]
         public string Name { get; set; }
 
         [ProtoMember(3)]
-        // [Key(2)]
+        [Key(2)]
         public DateTime CreatedTime { get; set; }
 
         [ProtoMember(4)]
-        // [Key(3)]
+        [Key(3)]
         public bool Male { get; set; }
     }
 
     public class N
     {
-        public N(int i)
+        public int Size { get; }
+        public N(int size)
         {
-            Original = new List<LabModel>();
-            Msgpack = new List<byte[]>();
-            LZ4Msgpack = new List<byte[]>();
-            ProtoBuf = new List<byte[]>();
-            Json = new List<string>();
-            Enumerable.Range(1, i).ToList().ForEach((x) =>
+            Size = size;
+        }
+
+        public override string ToString()
+        {
+            return Size.ToString();
+        }
+    }
+
+    public class MsgpackN : N
+    {
+        public byte[][] ValueArray;
+
+        public MsgpackN(LabModel[] original) : base(original.Length)
+        {
+            ValueArray = new byte[original.Length][];
+            for (int i = 0; i < original.Length; i++)
             {
-                var model = new LabModel
+                ValueArray[i] = MessagePackSerializer.Serialize(original[i]);
+            }
+        }
+    }
+
+    public class LZ4MsgpackN : N
+    {
+        public byte[][] ValueArray;
+
+        public LZ4MsgpackN(LabModel[] original) : base(original.Length)
+        {
+            ValueArray = new byte[original.Length][];
+            for (int i = 0; i < original.Length; i++)
+            {
+                ValueArray[i] = LZ4MessagePackSerializer.Serialize(original[i]);
+            }
+        }
+    }
+
+    public class ProtoN : N
+    {
+        public byte[][] ValueArray;
+
+        public ProtoN(LabModel[] original) : base(original.Length)
+        {
+            ValueArray = new byte[original.Length][];
+            using(var ms = new MemoryStream())
+            {
+                for (int i = 0; i < original.Length; i++)
                 {
-                Id = x,
-                Name = $"My name is {x}. 我的名字是 {x}。",
-                CreatedTime = DateTime.Now,
-                Male = x % 2 == 0 ? true : false
-                };
-                Original.Add(model);
-                Msgpack.Add(MessagePackSerializer.Serialize(model));
-                LZ4Msgpack.Add(LZ4MessagePackSerializer.Serialize(model));
-                using(var ms = new MemoryStream())
-                {
-                    Serializer.Serialize<LabModel>(ms, model);
-                    ProtoBuf.Add(ms.ToArray());
+                    Serializer.Serialize<LabModel>(ms, original[i]);
+                    ValueArray[i] = ms.ToArray();
+                    ms.Position = 0;
                 }
-                Json.Add(JsonConvert.SerializeObject(model));
-            });
+            }
         }
+    }
 
-        public N(int i, bool isOriginal)
+    public class JsonN : N
+    {
+        public string[] ValueArray;
+
+        public JsonN(LabModel[] original) : base(original.Length)
         {
-            Original = new List<LabModel>();
-            Enumerable.Range(1, i).ToList().ForEach((x) =>
+            ValueArray = new string[original.Length];
+            for (int i = 0; i < original.Length; i++)
             {
-                var model = new LabModel
+                ValueArray[i] = JsonConvert.SerializeObject(original[i]);
+            }
+        }
+    }
+
+    public class OriginalN : N
+    {
+        public LabModel[] ValueArray;
+
+        public OriginalN(int size) : base(size)
+        {
+            ValueArray = new LabModel[size];
+            Enumerable.Range(1, size).ToList().ForEach((x) =>
+            {
+                ValueArray[x - 1] = new LabModel
                 {
                 Id = x,
                 Name = $"My name is {x}. 我的名字是 {x}。",
                 CreatedTime = DateTime.Now,
                 Male = x % 2 == 0 ? true : false
                 };
-                Original.Add(model);
             });
         }
 
-        public List<LabModel> Original;
-        public List<byte[]> Msgpack;
-        public List<byte[]> LZ4Msgpack;
-        public List<byte[]> ProtoBuf;
-        public List<string> Json;
+        public OriginalN(LabModel[] array) : base(array.Length)
+        {
+            ValueArray = array;
+        }
     }
 }

@@ -7,6 +7,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using MessagePack;
 using Newtonsoft.Json;
@@ -25,22 +26,21 @@ namespace LabBenchmarks.MessagePack
         {
             public Config()
             {
-                Add(new ByteSizeColumn((benchmarkCase) => GetResultByByte(GetBytesForName(benchmarkCase))));
+                Add(new ByteSizeColumn((summary, benchmarkCase) => GetResultByByte(GetBytesForName(summary, benchmarkCase))));
             }
 
-            byte[] GetBytesForName(BenchmarkCase benchmarkCase)
+            byte[] GetBytesForName(Summary summary, BenchmarkCase benchmarkCase)
             {
-                string methodName = benchmarkCase.Descriptor.WorkloadMethod.Name;
                 if (benchmarkCase.Descriptor.Categories.Contains("Serialize"))
                 {
-                    int Count = int.Parse(benchmarkCase.Parameters.Items.First(a => a.Name == "Count").Value.ToString());
-                    var N = new N(Count, true);
-                    var arr = N.Original;
+                    OriginalN value = benchmarkCase.Parameters.GetArgument("N").Value as OriginalN;
+                    var arr = value.ValueArray;
+                    string methodName = benchmarkCase.Descriptor.WorkloadMethod.Name;
                     if (methodName.StartsWith("Proto"))
                     {
                         using(var ms = new MemoryStream())
                         {
-                            Serializer.Serialize<List<LabModel>>(ms, arr);
+                            Serializer.Serialize(ms, arr);
                             return ms.ToArray();
                         }
                     }
@@ -72,108 +72,157 @@ namespace LabBenchmarks.MessagePack
             }
         }
 
-        [Params(1, 10, 100, 10000)]
-        public int Count { get; set; }
+        private static int[] Params = { 1, 10, 100, 10000 };
 
-        public N N;
+        public OriginalN originalN = new OriginalN(Params.Max());
 
-        [GlobalSetup]
-        public void Setup()
+        private LabModel[] Take(int size)
         {
-            N = new N(Count);
+            return originalN.ValueArray.Take(size).ToArray();
+        }
+
+        public IEnumerable<OriginalN> OriginalNParam()
+        {
+            foreach (var param in Params)
+            {
+                yield return new OriginalN(Take(param));
+            }
+        }
+
+        public IEnumerable<MsgpackN> MsgpackNParam()
+        {
+            foreach (var param in Params)
+            {
+                yield return new MsgpackN(Take(param));
+            }
+        }
+
+        public IEnumerable<LZ4MsgpackN> LZ4MsgpackNParam()
+        {
+            foreach (var param in Params)
+            {
+                yield return new LZ4MsgpackN(Take(param));
+            }
+        }
+
+        public IEnumerable<ProtoN> ProtoNParam()
+        {
+            foreach (var param in Params)
+            {
+                yield return new ProtoN(Take(param));
+            }
+        }
+
+        public IEnumerable<JsonN> JsonNParam()
+        {
+            foreach (var param in Params)
+            {
+                yield return new JsonN(Take(param));
+            }
         }
 
         [Benchmark(Baseline = true), BenchmarkCategory("Serialize")]
-        public List<byte[]> MspackSerialize()
+        [ArgumentsSource(nameof(OriginalNParam))]
+        public byte[][] MspackSerialize(OriginalN N)
         {
-            List<byte[]> ret = new List<byte[]>();
-            foreach (var item in N.Original)
+            byte[][] ret = new byte[N.Size][];
+            for (int i = 0; i < N.Size; i++)
             {
-                ret.Add(MessagePackSerializer.Serialize(item));
+                ret[i] = MessagePackSerializer.Serialize(N.ValueArray[i]);
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Serialize")]
+        [ArgumentsSource(nameof(OriginalNParam))]
+        public byte[][] LZ4MspackSerialize(OriginalN N)
+        {
+            byte[][] ret = new byte[N.Size][];
+            for (int i = 0; i < N.Size; i++)
+            {
+                ret[i] = LZ4MessagePackSerializer.Serialize(N.ValueArray[i]);
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Serialize")]
+        [ArgumentsSource(nameof(OriginalNParam))]
+        public byte[][] ProtoSerialize(OriginalN N)
+        {
+            byte[][] ret = new byte[N.Size][];
+            using(var ms = new MemoryStream())
+            {
+                for (int i = 0; i < N.Size; i++)
+                {
+                    Serializer.Serialize(ms, N.ValueArray[i]);
+                    ret[i] = ms.ToArray();
+                    ms.Position = 0;
+                }
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Serialize")]
+        [ArgumentsSource(nameof(OriginalNParam))]
+        public string[] JsonSerialize(OriginalN N)
+        {
+            string[] ret = new string[N.Size];
+            for (int i = 0; i < N.Size; i++)
+            {
+                ret[i] = JsonConvert.SerializeObject(N.ValueArray[i]);
             }
             return ret;
         }
 
         [Benchmark(Baseline = true), BenchmarkCategory("Deserialize")]
-        public List<LabModel> MspackDeserialize()
+        [ArgumentsSource(nameof(MsgpackNParam))]
+        public LabModel[] MspackDeserialize(MsgpackN N)
         {
-            List<LabModel> ret = new List<LabModel>();
-            foreach (var item in N.Msgpack)
+            LabModel[] ret = new LabModel[N.Size];
+            for (int i = 0; i < N.Size; i++)
             {
-                ret.Add(MessagePackSerializer.Deserialize<LabModel>(item));
-            }
-            return ret;
-        }
-
-        [Benchmark, BenchmarkCategory("Serialize")]
-        public List<byte[]> LZ4MspackSerialize()
-        {
-            List<byte[]> ret = new List<byte[]>();
-            foreach (var item in N.Original)
-            {
-                ret.Add(LZ4MessagePackSerializer.Serialize(item));
+                ret[i] = MessagePackSerializer.Deserialize<LabModel>(N.ValueArray[i]);
             }
             return ret;
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
-        public List<LabModel> LZ4MspackDeserialize()
+        [ArgumentsSource(nameof(LZ4MsgpackNParam))]
+        public LabModel[] LZ4MspackDeserialize(LZ4MsgpackN N)
         {
-            List<LabModel> ret = new List<LabModel>();
-            foreach (var item in N.LZ4Msgpack)
+            LabModel[] ret = new LabModel[N.Size];
+            for (int i = 0; i < N.Size; i++)
             {
-                ret.Add(LZ4MessagePackSerializer.Deserialize<LabModel>(item));
+                ret[i] = LZ4MessagePackSerializer.Deserialize<LabModel>(N.ValueArray[i]);
             }
             return ret;
         }
 
-        [Benchmark, BenchmarkCategory("Serialize")]
-        public List<byte[]> ProtoSerialize()
+        [Benchmark, BenchmarkCategory("Deserialize")]
+        [ArgumentsSource(nameof(ProtoNParam))]
+        public LabModel[] ProtoDeserialize(ProtoN N)
         {
-            List<byte[]> ret = new List<byte[]>();
-            foreach (var item in N.Original)
+            LabModel[] ret = new LabModel[N.Size];
+            using(var ms = new MemoryStream())
             {
-                using(var ms = new MemoryStream())
+                for (int i = 0; i < N.Size; i++)
                 {
-                    Serializer.Serialize<LabModel>(ms, item);
-                    ret.Add(ms.ToArray());
+                    ms.Read(N.ValueArray[i]);
+                    ret[i] = Serializer.Deserialize<LabModel>(ms);
+                    ms.Flush();
                 }
             }
             return ret;
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
-        public List<LabModel> ProtoDeserialize()
+        [ArgumentsSource(nameof(JsonNParam))]
+        public LabModel[] JsonDeserialize(JsonN N)
         {
-            List<LabModel> ret = new List<LabModel>();
-            foreach (var item in N.ProtoBuf)
+            LabModel[] ret = new LabModel[N.Size];
+            for (int i = 0; i < N.Size; i++)
             {
-                using(var ms = new MemoryStream(item))
-                {
-                    ret.Add(Serializer.Deserialize<LabModel>(ms));
-                }
-            }
-            return ret;
-        }
-
-        [Benchmark, BenchmarkCategory("Serialize")]
-        public List<string> JsonSerialize()
-        {
-            List<string> ret = new List<string>();
-            foreach (var item in N.Original)
-            {
-                ret.Add(JsonConvert.SerializeObject(item));
-            }
-            return ret;
-        }
-
-        [Benchmark, BenchmarkCategory("Deserialize")]
-        public List<LabModel> JsonDeserialize()
-        {
-            List<LabModel> ret = new List<LabModel>();
-            foreach (var item in N.Json)
-            {
-                ret.Add(JsonConvert.DeserializeObject<LabModel>(item));
+                ret[i] = JsonConvert.DeserializeObject<LabModel>(N.ValueArray[i]);
             }
             return ret;
         }
