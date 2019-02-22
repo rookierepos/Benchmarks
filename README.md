@@ -60,7 +60,7 @@ Job=Core  Runtime=Core
 | NoYield |  1000 | 1,991.344 ms | 5.1368 ms | 4.8049 ms |  2.00 |    2 |           - |           - |           - |              4056 B |
 ```
 
-## MessagePack-Csharp vs Protobuf-net vs Newtonsoft.Json
+## MessagePack-Csharp vs Protobuf-net vs Newtonsoft.Json vs SwifterJson
 
 ```
 |                 Method |     N |            Mean |            Error |           StdDev | Ratio | RatioSD | Rank |  ByteSize | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
