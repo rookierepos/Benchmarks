@@ -12,11 +12,16 @@ using BenchmarkDotNet.Running;
 using MessagePack;
 using Newtonsoft.Json;
 using ProtoBuf;
+using Swifter.Json;
 
 namespace LabBenchmarks.MessagePack
 {
-    // [SimpleJob(RunStrategy.ColdStart, targetCount : 5)]
-    [CoreJob]
+    // [SimpleJob(RunStrategy.Throughput,
+    //     launchCount : 1,
+    //     warmupCount : 5,
+    //     targetCount : 15,
+    //     invocationCount: -1)]
+    [CoreJob, MaxWarmupCount(7), MaxIterationCount(16), IterationTime(300)]
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     [RankColumn, MemoryDiagnoser]
     [Config(typeof(Config))]
@@ -54,6 +59,10 @@ namespace LabBenchmarks.MessagePack
                         {
                             return LZ4MessagePackSerializer.Serialize(arr);
                         }
+                        else if (methodName.StartsWith("SwifterJson"))
+                        {
+                            return Encoding.Default.GetBytes(JsonFormatter.SerializeObject(arr));
+                        }
                         else
                         {
                             return Encoding.Default.GetBytes(JsonConvert.SerializeObject(arr));
@@ -72,7 +81,7 @@ namespace LabBenchmarks.MessagePack
             }
         }
 
-        private static int[] Params = { 1, 10, 100, 10000 };
+        private static int[] Params = { 1, 100, 10000 };
 
         public OriginalN originalN = new OriginalN(Params.Max());
 
@@ -164,12 +173,24 @@ namespace LabBenchmarks.MessagePack
 
         [Benchmark, BenchmarkCategory("Serialize")]
         [ArgumentsSource(nameof(OriginalNParam))]
-        public string[] JsonSerialize(OriginalN N)
+        public string[] NewtonJsonSerialize(OriginalN N)
         {
             string[] ret = new string[N.Size];
             for (int i = 0; i < N.Size; i++)
             {
                 ret[i] = JsonConvert.SerializeObject(N.ValueArray[i]);
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Serialize")]
+        [ArgumentsSource(nameof(OriginalNParam))]
+        public string[] SwifterJsonSerialize(OriginalN N)
+        {
+            string[] ret = new string[N.Size];
+            for (int i = 0; i < N.Size; i++)
+            {
+                ret[i] = JsonFormatter.SerializeObject(N.ValueArray[i]);
             }
             return ret;
         }
@@ -217,12 +238,24 @@ namespace LabBenchmarks.MessagePack
 
         [Benchmark, BenchmarkCategory("Deserialize")]
         [ArgumentsSource(nameof(JsonNParam))]
-        public LabModel[] JsonDeserialize(JsonN N)
+        public LabModel[] NewtonJsonDeserialize(JsonN N)
         {
             LabModel[] ret = new LabModel[N.Size];
             for (int i = 0; i < N.Size; i++)
             {
                 ret[i] = JsonConvert.DeserializeObject<LabModel>(N.ValueArray[i]);
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Deserialize")]
+        [ArgumentsSource(nameof(JsonNParam))]
+        public LabModel[] SwifterJsonDeserialize(JsonN N)
+        {
+            LabModel[] ret = new LabModel[N.Size];
+            for (int i = 0; i < N.Size; i++)
+            {
+                ret[i] = JsonFormatter.DeserializeObject<LabModel>(N.ValueArray[i]);
             }
             return ret;
         }
