@@ -8,6 +8,17 @@ namespace Benchmarks.Infrastructure
     {
         static void Main(string[] args)
         {
+            if (args != null && args.Length == 1)
+            {
+                if (int.TryParse(args[0].AsSpan(), out int values))
+                {
+                    if (values >= 0 && values < labs.Length)
+                    {
+                        _ = BenchmarkRunner.Run(labs[values]);
+                        return;
+                    }
+                }
+            }
             string param = string.Empty;
             do
             {
@@ -28,7 +39,7 @@ namespace Benchmarks.Infrastructure
             {
                 if (index >= 0 && index < labs.Length)
                 {
-                    var summary = BenchmarkRunner.Run(labs[index]);
+                    _ = BenchmarkRunner.Run(labs[index]);
                 }
             }
             else if (!param.Equals("q", StringComparison.OrdinalIgnoreCase))
