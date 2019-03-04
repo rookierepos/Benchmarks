@@ -10,6 +10,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using MessagePack;
+using MessagePack.Resolvers;
 using Newtonsoft.Json;
 using ProtoBuf;
 using Swifter.Json;
@@ -144,12 +145,36 @@ namespace LabBenchmarks.MessagePack
 
         [Benchmark, BenchmarkCategory("Serialize")]
         [ArgumentsSource(nameof(OriginalNParam))]
+        public byte[][] MspackContractlessSerialize(OriginalN N)
+        {
+            byte[][] ret = new byte[N.Size][];
+            for (int i = 0; i < N.Size; i++)
+            {
+                ret[i] = MessagePackSerializer.Serialize(N.ValueArray[i], ContractlessStandardResolver.Instance);
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Serialize")]
+        [ArgumentsSource(nameof(OriginalNParam))]
         public byte[][] LZ4MspackSerialize(OriginalN N)
         {
             byte[][] ret = new byte[N.Size][];
             for (int i = 0; i < N.Size; i++)
             {
                 ret[i] = LZ4MessagePackSerializer.Serialize(N.ValueArray[i]);
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Serialize")]
+        [ArgumentsSource(nameof(OriginalNParam))]
+        public byte[][] LZ4MspackContractlessSerialize(OriginalN N)
+        {
+            byte[][] ret = new byte[N.Size][];
+            for (int i = 0; i < N.Size; i++)
+            {
+                ret[i] = LZ4MessagePackSerializer.Serialize(N.ValueArray[i], ContractlessStandardResolver.Instance);
             }
             return ret;
         }
@@ -208,6 +233,18 @@ namespace LabBenchmarks.MessagePack
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
+        [ArgumentsSource(nameof(MsgpackNParam))]
+        public LabModel[] MspackContractlessDeserialize(MsgpackN N)
+        {
+            LabModel[] ret = new LabModel[N.Size];
+            for (int i = 0; i < N.Size; i++)
+            {
+                ret[i] = MessagePackSerializer.Deserialize<LabModel>(N.ValueArray[i], ContractlessStandardResolver.Instance);
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Deserialize")]
         [ArgumentsSource(nameof(LZ4MsgpackNParam))]
         public LabModel[] LZ4MspackDeserialize(LZ4MsgpackN N)
         {
@@ -215,6 +252,18 @@ namespace LabBenchmarks.MessagePack
             for (int i = 0; i < N.Size; i++)
             {
                 ret[i] = LZ4MessagePackSerializer.Deserialize<LabModel>(N.ValueArray[i]);
+            }
+            return ret;
+        }
+
+        [Benchmark, BenchmarkCategory("Deserialize")]
+        [ArgumentsSource(nameof(LZ4MsgpackNParam))]
+        public LabModel[] LZ4MspackContractlessDeserialize(LZ4MsgpackN N)
+        {
+            LabModel[] ret = new LabModel[N.Size];
+            for (int i = 0; i < N.Size; i++)
+            {
+                ret[i] = LZ4MessagePackSerializer.Deserialize<LabModel>(N.ValueArray[i], ContractlessStandardResolver.Instance);
             }
             return ret;
         }
