@@ -1,139 +1,64 @@
 # Benchmarks
 
-```
-  Count               : Value of the 'Count' parameter
-  Mean                : Arithmetic mean of all measurements
-  Error               : Half of 99.9% confidence interval
-  StdDev              : Standard deviation of all measurements
-  Ratio               : Mean of the ratio distribution ([Current]/[Baseline])
-  RatioSD             : Standard deviation of the ratio distribution ([Current]/[Baseline])
-  Rank                : Relative position of current benchmark mean among all benchmarks (Arabic style)
-  ByteSize            : Custom 'ByteSize' tag column
-  Gen 0/1k Op         : GC Generation 0 collects per 1k Operations
-  Gen 1/1k Op         : GC Generation 1 collects per 1k Operations
-  Gen 2/1k Op         : GC Generation 2 collects per 1k Operations
-  Allocated Memory/Op : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
-  1 ns                : 1 Nanosecond (0.000000001 sec)
+```ini
 
-BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.194 (1809/October2018Update/Redstone5)
+BenchmarkDotNet=v0.11.4, OS=Windows 10.0.17763.379 (1809/October2018Update/Redstone5)
 Intel Xeon CPU E3-1230 v3 3.30GHz, 1 CPU, 8 logical and 4 physical cores
-.NET Core SDK=3.0.100-preview-009812
-  [Host] : .NET Core 2.2.0 (CoreCLR 4.6.27110.04, CoreFX 4.6.27110.04), 64bit RyuJIT
-  Core   : .NET Core 2.2.0 (CoreCLR 4.6.27110.04, CoreFX 4.6.27110.04), 64bit RyuJIT
+.NET Core SDK=3.0.100-preview3-010431
+  [Host]     : .NET Core 2.2.3 (CoreCLR 4.6.27414.05, CoreFX 4.6.27414.05), 64bit RyuJIT
+  Job-ONNKIC : .NET Core 2.2.3 (CoreCLR 4.6.27414.05, CoreFX 4.6.27414.05), 64bit RyuJIT
 
-Job=Core  Runtime=Core
-```
-
-## IList vs List
+Runtime=Core  IterationTime=500.0000 ms  MaxIterationCount=16
+MaxWarmupIterationCount=7
 
 ```
-| Method | Count |        Mean |       Error |      StdDev | Ratio | RatioSD | Rank | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|------- |------ |------------:|------------:|------------:|------:|--------:|-----:|------------:|------------:|------------:|--------------------:|
-|  IList |     1 |    28.35 ns |   0.5766 ns |   0.8451 ns |  1.00 |    0.00 |    2 |      0.0095 |           - |           - |                40 B |
-|   List |     1 |    14.03 ns |   0.3163 ns |   0.4536 ns |  0.50 |    0.02 |    1 |           - |           - |           - |                   - |
-|        |       |             |             |             |       |         |      |             |             |             |                     |
-|  IList |    10 |   108.75 ns |   2.0208 ns |   1.6875 ns |  1.00 |    0.00 |    2 |      0.0094 |           - |           - |                40 B |
-|   List |    10 |    36.08 ns |   0.7023 ns |   0.6898 ns |  0.33 |    0.01 |    1 |           - |           - |           - |                   - |
-|        |       |             |             |             |       |         |      |             |             |             |                     |
-|  IList |   100 |   845.84 ns |  16.7122 ns |  32.5958 ns |  1.00 |    0.00 |    2 |      0.0086 |           - |           - |                40 B |
-|   List |   100 |   285.08 ns |   5.6357 ns |   7.5235 ns |  0.34 |    0.01 |    1 |           - |           - |           - |                   - |
-|        |       |             |             |             |       |         |      |             |             |             |                     |
-|  IList |  1000 | 7,924.61 ns | 156.6244 ns | 252.9192 ns |  1.00 |    0.00 |    2 |           - |           - |           - |                40 B |
-|   List |  1000 | 2,644.76 ns |  52.3925 ns |  80.0088 ns |  0.33 |    0.01 |    1 |           - |           - |           - |                   - |
-```
 
-## Yield vs NoYield (total:N loop:N/2)
-
-```
-|  Method | Count |         Mean |     Error |    StdDev | Ratio | Rank | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|-------- |------ |-------------:|----------:|----------:|------:|-----:|------------:|------------:|------------:|--------------------:|
-|   Yield |     1 |     1.987 ms | 0.0081 ms | 0.0075 ms |  1.00 |    1 |           - |           - |           - |                40 B |
-| NoYield |     1 |     1.988 ms | 0.0069 ms | 0.0064 ms |  1.00 |    1 |           - |           - |           - |                64 B |
-|         |       |              |           |           |       |      |             |             |             |                     |
-|   Yield |    10 |    11.912 ms | 0.0255 ms | 0.0213 ms |  1.00 |    1 |           - |           - |           - |                40 B |
-| NoYield |    10 |    19.880 ms | 0.0977 ms | 0.0914 ms |  1.67 |    2 |           - |           - |           - |                96 B |
-|         |       |              |           |           |       |      |             |             |             |                     |
-|   Yield |   100 |   101.382 ms | 0.3552 ms | 0.3323 ms |  1.00 |    1 |           - |           - |           - |                40 B |
-| NoYield |   100 |   198.480 ms | 0.6967 ms | 0.6517 ms |  1.96 |    2 |           - |           - |           - |               456 B |
-|         |       |              |           |           |       |      |             |             |             |                     |
-|   Yield |  1000 |   997.831 ms | 2.6684 ms | 2.4960 ms |  1.00 |    1 |           - |           - |           - |                40 B |
-| NoYield |  1000 | 1,991.344 ms | 5.1368 ms | 4.8049 ms |  2.00 |    2 |           - |           - |           - |              4056 B |
-```
-
-## MessagePack-Csharp vs Protobuf-net vs Newtonsoft.Json vs SwifterJson
-
-```
-|                           Method |     N |            Mean |            Error |           StdDev | Ratio | RatioSD | Rank |  ByteSize | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|--------------------------------- |------ |----------------:|-----------------:|-----------------:|------:|--------:|-----:|----------:|------------:|------------:|------------:|--------------------:|
-|                  MspackSerialize |     1 |        315.0 ns |        10.187 ns |        10.005 ns |  1.00 |    0.00 |    1 |      50 B |      0.0264 |           - |           - |               112 B |
-|      MspackContractlessSerialize |     1 |        311.8 ns |         6.750 ns |         5.984 ns |  0.99 |    0.04 |    1 |      50 B |      0.0265 |           - |           - |               112 B |
-|               LZ4MspackSerialize |     1 |        330.2 ns |         4.757 ns |         3.972 ns |  1.04 |    0.03 |    2 |      50 B |      0.0262 |           - |           - |               112 B |
-|   LZ4MspackContractlessSerialize |     1 |        335.8 ns |         7.733 ns |         7.233 ns |  1.06 |    0.04 |    2 |      50 B |      0.0266 |           - |           - |               112 B |
-|                   ProtoSerialize |     1 |        838.1 ns |        12.306 ns |        10.909 ns |  2.65 |    0.09 |    3 |      53 B |      0.1598 |           - |           - |               672 B |
-|              NewtonJsonSerialize |     1 |      1,390.8 ns |        24.937 ns |        22.106 ns |  4.40 |    0.13 |    4 |     117 B |      0.3871 |           - |           - |              1632 B |
-|             SwifterJsonSerialize |     1 |        329.8 ns |         7.830 ns |         7.324 ns |  1.05 |    0.05 |    2 |     113 B |      0.0796 |           - |           - |               336 B |
-|                                  |       |                 |                  |                  |       |         |      |           |             |             |             |                     |
-|                MspackDeserialize |     1 |        245.8 ns |         8.035 ns |         7.891 ns |  1.00 |    0.00 |    1 |         - |      0.0340 |           - |           - |               144 B |
-|    MspackContractlessDeserialize |     1 |        243.6 ns |         5.953 ns |         5.846 ns |  0.99 |    0.04 |    1 |         - |      0.0338 |           - |           - |               144 B |
-|             LZ4MspackDeserialize |     1 |        261.6 ns |         8.300 ns |         8.152 ns |  1.07 |    0.04 |    2 |         - |      0.0339 |           - |           - |               144 B |
-| LZ4MspackContractlessDeserialize |     1 |        248.9 ns |         4.359 ns |         4.078 ns |  1.01 |    0.03 |    1 |         - |      0.0340 |           - |           - |               144 B |
-|                 ProtoDeserialize |     1 |        669.6 ns |        15.998 ns |        15.713 ns |  2.73 |    0.09 |    3 |         - |      0.0464 |           - |           - |               200 B |
-|            NewtonJsonDeserialize |     1 |      2,405.0 ns |        59.459 ns |        58.397 ns |  9.79 |    0.21 |    5 |         - |      0.6690 |           - |           - |              2824 B |
-|           SwifterJsonDeserialize |     1 |      1,200.0 ns |        17.528 ns |        16.396 ns |  4.89 |    0.19 |    4 |         - |      0.1092 |           - |           - |               464 B |
-|                                  |       |                 |                  |                  |       |         |      |           |             |             |             |                     |
-|                  MspackSerialize |   100 |     30,175.4 ns |       618.364 ns |       578.418 ns |  1.00 |    0.00 |    1 |   4.97 KB |      2.0973 |           - |           - |              8824 B |
-|      MspackContractlessSerialize |   100 |     30,322.1 ns |       595.145 ns |       556.699 ns |  1.01 |    0.03 |    1 |   4.97 KB |      2.0755 |           - |           - |              8824 B |
-|               LZ4MspackSerialize |   100 |     31,516.7 ns |       504.499 ns |       421.280 ns |  1.05 |    0.02 |    2 |   1.79 KB |      2.0767 |           - |           - |              8824 B |
-|   LZ4MspackContractlessSerialize |   100 |     32,613.4 ns |       732.276 ns |       719.193 ns |  1.08 |    0.04 |    3 |   1.77 KB |      2.0601 |           - |           - |              8824 B |
-|                   ProtoSerialize |   100 |     76,954.9 ns |     1,391.677 ns |     1,301.775 ns |  2.55 |    0.07 |    4 |   5.45 KB |      6.9983 |           - |           - |             29986 B |
-|              NewtonJsonSerialize |   100 |    143,168.4 ns |     2,698.070 ns |     2,523.777 ns |  4.75 |    0.11 |    5 |  11.54 KB |     38.1050 |      0.5149 |           - |            161560 B |
-|             SwifterJsonSerialize |   100 |     33,304.2 ns |       676.261 ns |       664.179 ns |  1.10 |    0.04 |    3 |  11.16 KB |      7.5213 |           - |           - |             31960 B |
-|                                  |       |                 |                  |                  |       |         |      |           |             |             |             |                     |
-|                MspackDeserialize |   100 |     26,154.3 ns |       575.494 ns |       538.318 ns |  1.00 |    0.00 |    1 |         - |      3.0283 |           - |           - |             12752 B |
-|    MspackContractlessDeserialize |   100 |     28,696.5 ns |     5,970.179 ns |     5,584.509 ns |  1.10 |    0.22 |    1 |         - |      2.9641 |           - |           - |             12752 B |
-|             LZ4MspackDeserialize |   100 |     52,712.3 ns |     5,895.888 ns |     5,790.551 ns |  2.01 |    0.21 |    3 |         - |      2.9279 |           - |           - |             12752 B |
-| LZ4MspackContractlessDeserialize |   100 |     38,405.4 ns |     4,142.626 ns |     4,068.613 ns |  1.48 |    0.16 |    2 |         - |      3.0140 |           - |           - |             12752 B |
-|                 ProtoDeserialize |   100 |     80,123.7 ns |     8,810.618 ns |     8,653.205 ns |  3.09 |    0.34 |    4 |         - |      2.4900 |           - |           - |             10496 B |
-|            NewtonJsonDeserialize |   100 |    299,095.2 ns |    28,194.222 ns |    27,690.496 ns | 11.30 |    0.87 |    6 |         - |     66.4794 |           - |           - |            280752 B |
-|           SwifterJsonDeserialize |   100 |    159,603.0 ns |    17,644.301 ns |    17,329.063 ns |  6.09 |    0.69 |    5 |         - |     10.6040 |           - |           - |             44744 B |
-|                                  |       |                 |                  |                  |       |         |      |           |             |             |             |                     |
-|                  MspackSerialize | 10000 |  4,040,426.8 ns |   294,649.666 ns |   289,385.371 ns |  1.00 |    0.00 |    2 | 554.11 KB |    142.8571 |     71.4286 |           - |            952032 B |
-|      MspackContractlessSerialize | 10000 |  3,833,145.8 ns |   175,673.282 ns |   164,324.897 ns |  0.96 |    0.07 |    1 | 554.11 KB |    151.8987 |     75.9494 |           - |            952032 B |
-|               LZ4MspackSerialize | 10000 |  4,166,945.2 ns |   301,946.448 ns |   296,551.786 ns |  1.04 |    0.09 |    2 | 185.12 KB |    154.9296 |     70.4225 |           - |            952032 B |
-|   LZ4MspackContractlessSerialize | 10000 |  4,015,303.4 ns |   201,896.755 ns |   188,854.350 ns |  1.00 |    0.08 |    2 | 183.92 KB |    154.9296 |     70.4225 |           - |            952032 B |
-|                   ProtoSerialize | 10000 | 10,785,922.0 ns |   906,150.387 ns |   889,960.843 ns |  2.69 |    0.33 |    4 | 593.42 KB |    482.7586 |    241.3793 |           - |           3039656 B |
-|              NewtonJsonSerialize | 10000 | 24,526,419.3 ns | 1,020,953.691 ns | 1,002,713.038 ns |  6.10 |    0.49 |    5 |   1.18 MB |   2916.6667 |    750.0000 |    333.3333 |          16271209 B |
-|             SwifterJsonSerialize | 10000 |  6,740,396.7 ns |   358,395.462 ns |   335,243.337 ns |  1.68 |    0.13 |    3 |   1.15 MB |    525.0000 |    250.0000 |           - |           3315168 B |
-|                                  |       |                 |                  |                  |       |         |      |           |             |             |             |                     |
-|                MspackDeserialize | 10000 |  4,148,571.0 ns |   264,819.313 ns |   260,087.975 ns |  1.00 |    0.00 |    1 |         - |    212.5000 |    100.0000 |           - |           1351960 B |
-|    MspackContractlessDeserialize | 10000 |  4,056,341.1 ns |   243,450.941 ns |   215,812.918 ns |  0.97 |    0.06 |    1 |         - |    212.5000 |    100.0000 |           - |           1351960 B |
-|             LZ4MspackDeserialize | 10000 |  4,468,625.5 ns |   231,336.879 ns |   227,203.748 ns |  1.08 |    0.09 |    2 |         - |    212.5000 |    100.0000 |           - |           1351960 B |
-| LZ4MspackContractlessDeserialize | 10000 |  4,169,612.3 ns |   205,447.922 ns |   201,777.330 ns |  1.01 |    0.08 |    1 |         - |    212.5000 |    100.0000 |           - |           1351960 B |
-|                 ProtoDeserialize | 10000 |  7,963,447.3 ns |   396,946.996 ns |   389,855.027 ns |  1.93 |    0.16 |    3 |         - |    166.6667 |     83.3333 |           - |           1040118 B |
-|            NewtonJsonDeserialize | 10000 | 36,797,795.2 ns | 1,358,726.344 ns | 1,270,953.465 ns |  8.91 |    0.55 |    5 |         - |   5571.4286 |    571.4286 |           - |          28151960 B |
-|           SwifterJsonDeserialize | 10000 | 18,759,580.0 ns | 3,044,302.575 ns | 2,847,642.518 ns |  4.52 |    0.58 |    4 |         - |   1000.0000 |           - |           - |           4551104 B |
-```
-
-## Other lab
-
-```
-|       Method |             Toolchain | Count |       Mean |     Error |    StdDev | Ratio | RatioSD | Rank | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|------------- |---------------------- |------ |-----------:|----------:|----------:|------:|--------:|-----:|------------:|------------:|------------:|--------------------:|
-|  ListForeach |         .NET Core 2.1 |  1000 |   2.712 us | 0.0536 us | 0.0966 us |  1.00 |    0.00 |    1 |           - |           - |           - |                   - |
-| IListForeach |         .NET Core 2.1 |  1000 |   8.606 us | 0.1706 us | 0.3288 us |  3.19 |    0.17 |    2 |           - |           - |           - |                40 B |
-|       AsSpan |         .NET Core 2.1 |  1000 | 162.842 us | 3.5187 us | 6.8630 us | 59.81 |    3.26 |    3 |     17.0898 |           - |           - |             72048 B |
-|      ToArray |         .NET Core 2.1 |  1000 | 161.478 us | 3.2254 us | 6.8035 us | 59.70 |    3.30 |    3 |     17.0898 |           - |           - |             72048 B |
-|       ToList |         .NET Core 2.1 |  1000 | 163.792 us | 3.2443 us | 4.7554 us | 60.82 |    3.17 |    3 |     17.0898 |      0.2441 |           - |             72088 B |
-|              |                       |       |            |           |           |       |         |      |             |             |             |                     |
-|  ListForeach |         .NET Core 2.2 |  1000 |   2.745 us | 0.0542 us | 0.0795 us |  1.00 |    0.00 |    1 |           - |           - |           - |                   - |
-| IListForeach |         .NET Core 2.2 |  1000 |   8.206 us | 0.2008 us | 0.2062 us |  2.97 |    0.07 |    2 |           - |           - |           - |                40 B |
-|       AsSpan |         .NET Core 2.2 |  1000 | 154.738 us | 3.0812 us | 6.4992 us | 57.34 |    3.35 |    4 |     17.0898 |           - |           - |             72048 B |
-|      ToArray |         .NET Core 2.2 |  1000 | 150.098 us | 3.3089 us | 4.7455 us | 54.72 |    2.69 |    3 |     17.0898 |           - |           - |             72048 B |
-|       ToList |         .NET Core 2.2 |  1000 | 167.574 us | 3.3496 us | 8.0897 us | 59.57 |    4.00 |    5 |     17.0898 |      0.2441 |           - |             72088 B |
-|              |                       |       |            |           |           |       |         |      |             |             |             |                     |
-|  ListForeach | .NET Core 3.0 preview |  1000 |   2.847 us | 0.0568 us | 0.0608 us |  1.00 |    0.00 |    1 |           - |           - |           - |                   - |
-| IListForeach | .NET Core 3.0 preview |  1000 |   8.191 us | 0.1615 us | 0.2742 us |  2.86 |    0.08 |    2 |           - |           - |           - |                40 B |
-|       AsSpan | .NET Core 3.0 preview |  1000 | 163.346 us | 3.2646 us | 8.3094 us | 56.43 |    3.28 |    3 |     15.1367 |           - |           - |             64128 B |
-|      ToArray | .NET Core 3.0 preview |  1000 | 159.496 us | 3.1441 us | 4.1973 us | 56.01 |    2.00 |    3 |     15.1367 |           - |           - |             64128 B |
-|       ToList | .NET Core 3.0 preview |  1000 | 166.753 us | 3.3657 us | 8.6879 us | 59.12 |    2.50 |    3 |     15.1367 |           - |           - |             64168 B |
-```
+| Method                           | N         |               Mean |             Error |            StdDev |    Ratio |  RatioSD |      ByteSize |  Gen 0/1k Op |  Gen 1/1k Op |  Gen 2/1k Op | Allocated Memory/Op |
+| -------------------------------- | --------- | -----------------: | ----------------: | ----------------: | -------: | -------: | ------------: | -----------: | -----------: | -----------: | ------------------: |
+| **MspackSerialize**              | **1**     |       **365.4 ns** |     **14.754 ns** |     **13.079 ns** | **1.00** | **0.00** |      **68 B** |   **0.0227** |        **-** |        **-** |            **96 B** |
+| MspackContractlessSerialize      | 1         |           356.2 ns |          3.659 ns |          3.244 ns |     0.98 |     0.04 |          68 B |       0.0226 |            - |            - |                96 B |
+| LZ4MspackSerialize               | 1         |           664.8 ns |         32.284 ns |         31.708 ns |     1.83 |     0.11 |          81 B |       0.0255 |            - |            - |               112 B |
+| LZ4MspackContractlessSerialize   | 1         |           732.6 ns |         43.414 ns |         42.638 ns |     1.99 |     0.15 |          81 B |       0.0259 |            - |            - |               112 B |
+| ProtoSerialize                   | 1         |         1,683.3 ns |         45.415 ns |         42.481 ns |     4.61 |     0.24 |          76 B |       0.1634 |            - |            - |               696 B |
+| NewtonJsonSerialize              | 1         |         2,974.2 ns |        132.668 ns |        130.298 ns |     8.12 |     0.35 |         181 B |       0.5031 |            - |            - |              2112 B |
+| SwifterJsonSerialize             | 1         |           906.9 ns |         27.063 ns |         26.579 ns |     2.49 |     0.08 |         177 B |       0.1352 |            - |            - |               568 B |
+|                                  |           |                    |                   |                   |          |          |               |              |              |              |                     |
+| MspackDeserialize                | 1         |           363.5 ns |         20.776 ns |         18.418 ns |     1.00 |     0.00 |            1N |       0.0377 |            - |            - |               160 B |
+| MspackContractlessDeserialize    | 1         |           378.7 ns |         23.897 ns |         22.354 ns |     1.05 |     0.09 |            1N |       0.0377 |            - |            - |               160 B |
+| LZ4MspackDeserialize             | 1         |           469.6 ns |         32.441 ns |         31.862 ns |     1.29 |     0.08 |            1N |       0.0378 |            - |            - |               160 B |
+| LZ4MspackContractlessDeserialize | 1         |           453.2 ns |         28.910 ns |         27.043 ns |     1.25 |     0.11 |            1N |       0.0377 |            - |            - |               160 B |
+| ProtoDeserialize                 | 1         |         6,411.1 ns |        117.844 ns |         98.405 ns |    17.68 |     0.93 |            1N |       0.5850 |            - |            - |              2485 B |
+| NewtonJsonDeserialize            | 1         |         6,258.5 ns |        485.598 ns |        454.229 ns |    17.32 |     1.66 |            1N |       0.7705 |            - |            - |              3280 B |
+| SwifterJsonDeserialize           | 1         |         2,424.8 ns |         93.531 ns |         91.860 ns |     6.67 |     0.36 |            1N |       0.1686 |            - |            - |               720 B |
+|                                  |           |                    |                   |                   |          |          |               |              |              |              |                     |
+| **MspackSerialize**              | **100**   |    **29,356.8 ns** |    **560.826 ns** |    **524.597 ns** | **1.00** | **0.00** |   **6.73 KB** |   **1.6389** |        **-** |        **-** |          **6912 B** |
+| MspackContractlessSerialize      | 100       |        30,178.1 ns |      1,465.006 ns |      1,370.367 ns |     1.03 |     0.04 |       6.73 KB |       1.6220 |            - |            - |              6912 B |
+| LZ4MspackSerialize               | 100       |        39,322.8 ns |      1,018.819 ns |      1,000.617 ns |     1.34 |     0.04 |       2.94 KB |       0.6903 |            - |            - |              3056 B |
+| LZ4MspackContractlessSerialize   | 100       |        39,030.9 ns |      1,271.162 ns |      1,248.451 ns |     1.33 |     0.05 |       2.97 KB |       0.6990 |            - |            - |              3056 B |
+| ProtoSerialize                   | 100       |        78,480.3 ns |      2,744.051 ns |      2,566.787 ns |     2.67 |     0.10 |        7.7 KB |       5.8570 |            - |            - |             24640 B |
+| NewtonJsonSerialize              | 100       |       239,675.0 ns |      9,174.431 ns |      9,010.518 ns |     8.21 |     0.30 |      17.96 KB |      26.1072 |            - |            - |            109968 B |
+| SwifterJsonSerialize             | 100       |        85,090.8 ns |      2,967.431 ns |      2,914.414 ns |     2.90 |     0.11 |       17.4 KB |      10.6645 |            - |            - |             45352 B |
+|                                  |           |                    |                   |                   |          |          |               |              |              |              |                     |
+| MspackDeserialize                | 100       |        32,596.7 ns |      1,391.476 ns |      1,366.615 ns |     1.00 |     0.00 |          100N |       3.3566 |            - |            - |             14352 B |
+| MspackContractlessDeserialize    | 100       |        32,612.1 ns |      1,590.382 ns |      1,561.968 ns |     1.00 |     0.08 |          100N |       3.3960 |            - |            - |             14352 B |
+| LZ4MspackDeserialize             | 100       |        35,388.2 ns |      1,657.545 ns |      1,627.930 ns |     1.09 |     0.06 |          100N |       3.3766 |            - |            - |             14352 B |
+| LZ4MspackContractlessDeserialize | 100       |        34,951.7 ns |      1,940.666 ns |      1,905.993 ns |     1.07 |     0.07 |          100N |       3.3840 |            - |            - |             14352 B |
+| ProtoDeserialize                 | 100       |       116,990.1 ns |      5,519.874 ns |      5,163.294 ns |     3.60 |     0.17 |          100N |       7.6673 |            - |            - |             32336 B |
+| NewtonJsonDeserialize            | 100       |       433,308.3 ns |     26,693.220 ns |     26,216.311 ns |    13.32 |     1.03 |          100N |      10.8611 |            - |            - |             47368 B |
+| SwifterJsonDeserialize           | 100       |       233,205.6 ns |      6,937.377 ns |      6,813.432 ns |     7.17 |     0.46 |          100N |      14.4864 |            - |            - |             61912 B |
+|                                  |           |                    |                   |                   |          |          |               |              |              |              |                     |
+| **MspackSerialize**              | **10000** | **3,502,794.0 ns** | **69,485.241 ns** | **68,243.798 ns** | **1.00** | **0.00** | **729.89 KB** | **659.5745** | **659.5745** | **659.5745** |       **2713616 B** |
+| MspackContractlessSerialize      | 10000     |     3,491,478.4 ns |     73,620.953 ns |     72,305.620 ns |     1.00 |     0.02 |     729.89 KB |     662.0690 |     662.0690 |     662.0690 |           2713616 B |
+| LZ4MspackSerialize               | 10000     |     4,949,137.1 ns |    137,756.378 ns |    135,295.183 ns |     1.41 |     0.05 |     313.92 KB |     727.2727 |     727.2727 |     727.2727 |           3038560 B |
+| LZ4MspackContractlessSerialize   | 10000     |     5,237,152.1 ns |    334,962.007 ns |    328,977.479 ns |     1.50 |     0.10 |     314.86 KB |     725.4902 |     725.4902 |     725.4902 |           3037976 B |
+| ProtoSerialize                   | 10000     |     8,499,476.0 ns |    463,102.388 ns |    410,528.205 ns |     2.43 |     0.14 |     818.02 KB |     703.1250 |     687.5000 |     671.8750 |           3050244 B |
+| NewtonJsonSerialize              | 10000     |    25,553,082.7 ns |    395,682.898 ns |    350,762.583 ns |     7.30 |     0.13 |       1.81 MB |    1578.9474 |    1052.6316 |     578.9474 |           9711328 B |
+| SwifterJsonSerialize             | 10000     |     9,273,767.7 ns |    115,522.107 ns |    108,059.451 ns |     2.65 |     0.06 |       1.76 MB |     629.6296 |     351.8519 |     351.8519 |           4641735 B |
+|                                  |           |                    |                   |                   |          |          |               |              |              |              |                     |
+| MspackDeserialize                | 10000     |     3,941,129.4 ns |    157,709.900 ns |    154,892.210 ns |     1.00 |     0.00 |        10000N |     242.1875 |     117.1875 |            - |           1511960 B |
+| MspackContractlessDeserialize    | 10000     |     3,800,217.9 ns |    163,027.964 ns |    160,115.259 ns |     0.96 |     0.04 |        10000N |     236.1111 |     118.0556 |            - |           1511960 B |
+| LZ4MspackDeserialize             | 10000     |     4,106,615.7 ns |     37,714.159 ns |     35,277.848 ns |     1.05 |     0.04 |        10000N |     398.4375 |     328.1250 |     171.8750 |           2259545 B |
+| LZ4MspackContractlessDeserialize | 10000     |     4,988,178.7 ns |     81,402.733 ns |     76,144.167 ns |     1.27 |     0.04 |        10000N |     392.8571 |     321.4286 |     169.6429 |           2259605 B |
+| ProtoDeserialize                 | 10000     |    12,706,491.1 ns |    275,106.682 ns |    243,874.908 ns |     3.22 |     0.12 |        10000N |     520.8333 |     354.1667 |     187.5000 |           2951364 B |
+| NewtonJsonDeserialize            | 10000     |    44,124,208.6 ns |    630,051.173 ns |    558,523.954 ns |    11.19 |     0.53 |        10000N |     700.0000 |     200.0000 |            - |           4584232 B |
+| SwifterJsonDeserialize           | 10000     |    27,533,485.6 ns |    414,125.301 ns |    387,373.063 ns |     7.01 |     0.26 |        10000N |    1055.5556 |     388.8889 |     111.1111 |           6186860 B |

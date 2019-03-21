@@ -27,6 +27,14 @@ namespace LabBenchmarks.MessagePack
         [ProtoMember(4)]
         [Key(3)]
         public bool Male { get; set; }
+
+        [ProtoMember(5)]
+        [Key(4)]
+        public TimeSpan TimeSpan { get; set; }
+
+        [ProtoMember(6)]
+        [Key(5)]
+        public double Double { get; set; }
     }
 
     public class N
@@ -45,62 +53,45 @@ namespace LabBenchmarks.MessagePack
 
     public class MsgpackN : N
     {
-        public byte[][] ValueArray;
+        public byte[] ValueArray;
 
         public MsgpackN(LabModel[] original) : base(original.Length)
         {
-            ValueArray = new byte[original.Length][];
-            for (int i = 0; i < original.Length; i++)
-            {
-                ValueArray[i] = MessagePackSerializer.Serialize(original[i]);
-            }
+            ValueArray = MessagePackSerializer.Serialize(original);
         }
     }
 
     public class LZ4MsgpackN : N
     {
-        public byte[][] ValueArray;
+        public byte[] ValueArray;
 
         public LZ4MsgpackN(LabModel[] original) : base(original.Length)
         {
-            ValueArray = new byte[original.Length][];
-            for (int i = 0; i < original.Length; i++)
-            {
-                ValueArray[i] = LZ4MessagePackSerializer.Serialize(original[i]);
-            }
+            ValueArray = LZ4MessagePackSerializer.Serialize(original);
         }
     }
 
     public class ProtoN : N
     {
-        public byte[][] ValueArray;
+        public byte[] ValueArray;
 
         public ProtoN(LabModel[] original) : base(original.Length)
         {
-            ValueArray = new byte[original.Length][];
             using(var ms = new MemoryStream())
             {
-                for (int i = 0; i < original.Length; i++)
-                {
-                    Serializer.Serialize<LabModel>(ms, original[i]);
-                    ValueArray[i] = ms.ToArray();
-                    ms.Position = 0;
-                }
+                Serializer.Serialize(ms, original);
+                ValueArray = ms.ToArray();
             }
         }
     }
 
     public class JsonN : N
     {
-        public string[] ValueArray;
+        public string ValueArray;
 
         public JsonN(LabModel[] original) : base(original.Length)
         {
-            ValueArray = new string[original.Length];
-            for (int i = 0; i < original.Length; i++)
-            {
-                ValueArray[i] = JsonConvert.SerializeObject(original[i]);
-            }
+            ValueArray = JsonConvert.SerializeObject(original);
         }
     }
 
@@ -111,6 +102,7 @@ namespace LabBenchmarks.MessagePack
         public OriginalN(int size) : base(size)
         {
             ValueArray = new LabModel[size];
+            var rand = new Random(DateTime.Now.Millisecond);
             Enumerable.Range(1, size).ToList().ForEach((x) =>
             {
                 ValueArray[x - 1] = new LabModel
@@ -118,7 +110,9 @@ namespace LabBenchmarks.MessagePack
                 Id = x,
                 Name = $"My name is {x}. 我的名字是 {x}。",
                 CreatedTime = DateTime.Now,
-                Male = x % 2 == 0 ? true : false
+                Male = x % 2 == 0 ? true : false,
+                TimeSpan = DateTime.Now - default(DateTime),
+                Double = rand.NextDouble()
                 };
             });
         }
