@@ -51,7 +51,8 @@ namespace Benchmarks.Infrastructure
         private static Type[] labs = {
             typeof(LabInterface),
             typeof(LabYield),
-            typeof(DiffrentCoreClr)
+            typeof(DiffrentCoreClr),
+            typeof(LabTask)
         };
     }
 }
