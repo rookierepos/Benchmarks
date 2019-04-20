@@ -52,7 +52,8 @@ namespace Benchmarks.Infrastructure
             typeof(LabInterface),
             typeof(LabYield),
             typeof(DiffrentCoreClr),
-            typeof(LabTask)
+            typeof(LabTask),
+            typeof(LabType)
         };
     }
 }
