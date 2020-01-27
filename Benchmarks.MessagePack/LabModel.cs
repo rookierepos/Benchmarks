@@ -40,8 +40,9 @@ namespace LabBenchmarks.MessagePack
 
     public class LabOptions
     {
-        public static readonly MessagePackSerializerOptions lz4Options = MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray).WithResolver(ContractlessStandardResolver.Instance);
-        public static readonly MessagePackSerializerOptions mcpOptions = MessagePackSerializerOptions.Standard.WithResolver(ContractlessStandardResolver.Instance);
+        public static readonly MessagePackSerializerOptions lz4Options = MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray);
+        public static readonly MessagePackSerializerOptions lz4ContractlessOptions = MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray).WithResolver(ContractlessStandardResolver.Instance);
+        public static readonly MessagePackSerializerOptions mcpContractlessOptions = MessagePackSerializerOptions.Standard.WithResolver(ContractlessStandardResolver.Instance);
     }
 
     public class N
@@ -74,7 +75,7 @@ namespace LabBenchmarks.MessagePack
 
         public LZ4MsgpackN(LabModel[] original) : base(original.Length)
         {
-            ValueArray = MessagePackSerializer.Serialize(original, LabOptions.lz4Options);
+            ValueArray = MessagePackSerializer.Serialize(original, LabOptions.lz4ContractlessOptions);
         }
     }
 

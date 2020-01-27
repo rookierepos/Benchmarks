@@ -92,14 +92,14 @@ namespace LabBenchmarks.MessagePack
         [ArgumentsSource(nameof(OriginalNParam))]
         public byte[] MspackSerialize(OriginalN N)
         {
-            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.mcpOptions);
+            return MessagePackSerializer.Serialize(N.ValueArray);
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
         [ArgumentsSource(nameof(OriginalNParam))]
         public byte[] MspackContractlessSerialize(OriginalN N)
         {
-            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.mcpOptions);
+            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.mcpContractlessOptions);
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
@@ -113,7 +113,7 @@ namespace LabBenchmarks.MessagePack
         [ArgumentsSource(nameof(OriginalNParam))]
         public byte[] LZ4MspackContractlessSerialize(OriginalN N)
         {
-            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.lz4Options);
+            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.lz4ContractlessOptions);
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
@@ -145,14 +145,14 @@ namespace LabBenchmarks.MessagePack
         [ArgumentsSource(nameof(MsgpackNParam))]
         public LabModel[] MspackDeserialize(MsgpackN N)
         {
-            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.mcpOptions);
+            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray);
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
         [ArgumentsSource(nameof(MsgpackNParam))]
         public LabModel[] MspackContractlessDeserialize(MsgpackN N)
         {
-            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.mcpOptions);
+            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.mcpContractlessOptions);
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
@@ -166,7 +166,7 @@ namespace LabBenchmarks.MessagePack
         [ArgumentsSource(nameof(LZ4MsgpackNParam))]
         public LabModel[] LZ4MspackContractlessDeserialize(LZ4MsgpackN N)
         {
-            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.lz4Options);
+            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.lz4ContractlessOptions);
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
