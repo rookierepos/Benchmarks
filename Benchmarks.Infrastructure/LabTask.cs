@@ -7,7 +7,8 @@ using BenchmarkDotNet.Jobs;
 
 namespace Benchmarks.Infrastructure
 {
-    [CoreJob]
+
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [MaxWarmupCount(7), MaxIterationCount(16), IterationTime(500)]
     [RankColumn, MemoryDiagnoser]
     public class LabTask

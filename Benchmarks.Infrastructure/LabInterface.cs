@@ -7,7 +7,8 @@ using BenchmarkDotNet.Jobs;
 namespace Benchmarks.Infrastructure
 {
     // [SimpleJob(RunStrategy.ColdStart, targetCount : 50)]
-    [CoreJob]
+
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [RankColumn, MemoryDiagnoser]
     public class LabInterface
     {

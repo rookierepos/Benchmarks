@@ -10,7 +10,8 @@ using BenchmarkDotNet.Jobs;
 namespace Benchmarks.Infrastructure
 {
     // [SimpleJob(RunStrategy.ColdStart, targetCount : 50)]
-    [CoreJob]
+
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [MaxWarmupCount(7), MaxIterationCount(16), IterationTime(500)]
     [RankColumn, MemoryDiagnoser]
     public class LabType

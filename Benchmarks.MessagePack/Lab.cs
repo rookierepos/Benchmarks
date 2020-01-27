@@ -22,7 +22,7 @@ namespace LabBenchmarks.MessagePack
     //     warmupCount : 5,
     //     targetCount : 15,
     //     invocationCount: -1)]
-    [CoreJob]
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     // [MeanColumn]
     [MaxWarmupCount(7), MaxIterationCount(16), IterationTime(500)]
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
@@ -92,28 +92,28 @@ namespace LabBenchmarks.MessagePack
         [ArgumentsSource(nameof(OriginalNParam))]
         public byte[] MspackSerialize(OriginalN N)
         {
-            return MessagePackSerializer.Serialize(N.ValueArray);
+            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.mcpOptions);
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
         [ArgumentsSource(nameof(OriginalNParam))]
         public byte[] MspackContractlessSerialize(OriginalN N)
         {
-            return MessagePackSerializer.Serialize(N.ValueArray, ContractlessStandardResolver.Instance);
+            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.mcpOptions);
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
         [ArgumentsSource(nameof(OriginalNParam))]
         public byte[] LZ4MspackSerialize(OriginalN N)
         {
-            return LZ4MessagePackSerializer.Serialize(N.ValueArray);
+            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.lz4Options);
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
         [ArgumentsSource(nameof(OriginalNParam))]
         public byte[] LZ4MspackContractlessSerialize(OriginalN N)
         {
-            return LZ4MessagePackSerializer.Serialize(N.ValueArray, ContractlessStandardResolver.Instance);
+            return MessagePackSerializer.Serialize(N.ValueArray, LabOptions.lz4Options);
         }
 
         [Benchmark, BenchmarkCategory("Serialize")]
@@ -145,28 +145,28 @@ namespace LabBenchmarks.MessagePack
         [ArgumentsSource(nameof(MsgpackNParam))]
         public LabModel[] MspackDeserialize(MsgpackN N)
         {
-            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray);
+            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.mcpOptions);
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
         [ArgumentsSource(nameof(MsgpackNParam))]
         public LabModel[] MspackContractlessDeserialize(MsgpackN N)
         {
-            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, ContractlessStandardResolver.Instance);
+            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.mcpOptions);
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
         [ArgumentsSource(nameof(LZ4MsgpackNParam))]
         public LabModel[] LZ4MspackDeserialize(LZ4MsgpackN N)
         {
-            return LZ4MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray);
+            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.lz4Options);
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]
         [ArgumentsSource(nameof(LZ4MsgpackNParam))]
         public LabModel[] LZ4MspackContractlessDeserialize(LZ4MsgpackN N)
         {
-            return LZ4MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, ContractlessStandardResolver.Instance);
+            return MessagePackSerializer.Deserialize<LabModel[]>(N.ValueArray, LabOptions.lz4Options);
         }
 
         [Benchmark, BenchmarkCategory("Deserialize")]

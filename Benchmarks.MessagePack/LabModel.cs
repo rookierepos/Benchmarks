@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using MessagePack;
+using MessagePack.Resolvers;
 using Newtonsoft.Json;
 using ProtoBuf;
 namespace LabBenchmarks.MessagePack
@@ -37,6 +38,12 @@ namespace LabBenchmarks.MessagePack
         public double Double { get; set; }
     }
 
+    public class LabOptions
+    {
+        public static readonly MessagePackSerializerOptions lz4Options = MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray).WithResolver(ContractlessStandardResolver.Instance);
+        public static readonly MessagePackSerializerOptions mcpOptions = MessagePackSerializerOptions.Standard.WithResolver(ContractlessStandardResolver.Instance);
+    }
+
     public class N
     {
         public int Size { get; }
@@ -67,7 +74,7 @@ namespace LabBenchmarks.MessagePack
 
         public LZ4MsgpackN(LabModel[] original) : base(original.Length)
         {
-            ValueArray = LZ4MessagePackSerializer.Serialize(original);
+            ValueArray = MessagePackSerializer.Serialize(original, LabOptions.lz4Options);
         }
     }
 
